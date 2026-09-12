@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ha-probe
+  namespace: default
+  labels:
+    app: ha-probe
+spec:
+  ports:
+  - name: metrics
+    port: 8000
+    targetPort: 8000
+  selector:
+    app: ha-probe

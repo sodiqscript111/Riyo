@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: patroni-config
+  namespace: default
+data:
+  SCOPE: "postgres-cluster"
+  KUBERNETES_LABELS: '{"app": "postgres"}'
+  KUBERNETES_ROLE_LABEL: "postgres-role"
+  PGVERSION: "16"

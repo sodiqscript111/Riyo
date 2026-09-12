@@ -26,9 +26,10 @@ spec:
           name: postgres
         - containerPort: 8008
           name: patroni
+        envFrom:
+        - configMapRef:
+            name: patroni-config
         env:
-        - name: SCOPE
-          value: "postgres-cluster"
         - name: POD_NAME
           valueFrom:
             fieldRef:
@@ -41,12 +42,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        - name: KUBERNETES_LABELS
-          value: '{"app": "postgres"}'
-        - name: KUBERNETES_ROLE_LABEL
-          value: "postgres-role"
-        - name: PGVERSION
-          value: "16"
         - name: PGPASSWORD_SUPERUSER
           valueFrom:
             secretKeyRef:

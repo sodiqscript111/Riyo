@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ha-probe
+  namespace: default
+  labels:
+    app: ha-probe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ha-probe
+  template:
+    metadata:
+      labels:
+        app: ha-probe
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: probe
+        image: sodiqscript111/ha-probe:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: metrics
+        env:
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: admin-password
+        - name: DB_NAME
+          value: "postgres"
+        - name: POLL_INTERVAL
+          value: "0.5"
