@@ -5,6 +5,7 @@ metadata:
   namespace: default
 data:
   SCOPE: "postgres-cluster"
+  DCS_ENABLE_KUBERNETES_API: "true"
   KUBERNETES_LABELS: '{"app": "postgres"}'
   KUBERNETES_ROLE_LABEL: "postgres-role"
   PGVERSION: "16"
