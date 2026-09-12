@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-headless
+  namespace: default
+  labels:
+    app: postgres
+spec:
+  clusterIP: None
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: default
+  labels:
+    app: postgres
+spec:
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+  # Patroni will manage the endpoints for this service to point to the primary
+  selector:
+    app: postgres
+    postgres-role: master

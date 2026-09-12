@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-cluster
+  namespace: default
+  labels:
+    app: postgres
+spec:
+  serviceName: "postgres-headless"
+  replicas: 4
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      serviceAccountName: postgres-sa
+      containers:
+      - name: postgres
+        image: ghcr.io/zalando/spilo-16:3.2-p3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+          name: postgres
+        - containerPort: 8008
+          name: patroni
+        env:
+        - name: SCOPE
+          value: "postgres-cluster"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: KUBERNETES_LABELS
+          value: '{"app": "postgres"}'
+        - name: KUBERNETES_ROLE_LABEL
+          value: "postgres-role"
+        - name: PGVERSION
+          value: "16"
+        - name: PGPASSWORD_SUPERUSER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: admin-password
+        - name: PGPASSWORD_STANDBY
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: standby-password
+        volumeMounts:
+        - name: pgdata
+          mountPath: /home/postgres/pgdata
+  volumeClaimTemplates:
+  - metadata:
+      name: pgdata
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
